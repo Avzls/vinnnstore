@@ -6,6 +6,8 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\Admin\UserController;
+use Illuminate\Auth\Auth;
 use Illuminate\Foundation\Application;
 
 /**
@@ -13,10 +15,23 @@ use Illuminate\Foundation\Application;
  | HOMEPAGE -> PRODUCT LIST
  |---------------------------
 */
-Route::get('/', fn() => redirect('/products'));
 
 Route::resource('admin/products', ProductController::class)
     ->names('admin.products');
+
+/**
+ |---------------------------
+ | ADMIN ROUTES
+ |---------------------------
+*/
+Route::prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])
+        ->name('dashboard');
+        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+
+});
+
 
 
 
@@ -50,15 +65,6 @@ Route::get('/dashboard', function () {
 
 Route::get('/checkout', [CartController::class, 'checkout']);
 
-/**
- |---------------------------
- | ADMIN ROUTES
- |---------------------------
-*/
-
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::resource('products', ProductController::class);
-});
 
 /**
  |---------------------------
@@ -70,5 +76,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
 
 require __DIR__.'/auth.php';
